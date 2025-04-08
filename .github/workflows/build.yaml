@@ -45,7 +45,7 @@ jobs:
           go build -v -o wingbits-to-mqtt-${{ matrix.os }}-${{ matrix.arch }} ./...
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: wingbits-to-mqtt-${{ matrix.os }}-${{ matrix.arch }}
           path: wingbits-to-mqtt-${{ matrix.os }}-${{ matrix.arch }}
