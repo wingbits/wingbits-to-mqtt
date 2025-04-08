@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
 	"io"
 	"log"
@@ -15,6 +16,13 @@ import (
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 	"gopkg.in/yaml.v3"
+)
+
+// Version information set during build
+var (
+	version = "dev"
+	commit  = "unknown"
+	date    = "unknown"
 )
 
 type Config struct {
@@ -382,14 +390,19 @@ func connectMQTT(broker, clientID, username, password string) (mqtt.Client, erro
 }
 
 func main() {
-	// Get config path from command line or use default
-	configPath := ""
-	if len(os.Args) > 1 {
-		configPath = os.Args[1]
+	// Parse command line flags
+	configPath := flag.String("config", "", "Path to configuration file (default: config.yaml)")
+	showVersion := flag.Bool("version", false, "Show version information")
+	flag.Parse()
+
+	// Show version if requested
+	if *showVersion {
+		fmt.Printf("wingbits-to-mqtt version %s (commit: %s, built: %s)\n", version, commit, date)
+		return
 	}
 
 	// Load configuration
-	config, err := loadConfig(configPath)
+	config, err := loadConfig(*configPath)
 	if err != nil {
 		log.Fatalf("Failed to load configuration: %v", err)
 	}

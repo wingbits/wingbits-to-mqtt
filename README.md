@@ -51,7 +51,43 @@ Run the application with:
 ./wingbits-to-mqtt
 
 # Or specify a custom config file
-./wingbits-to-mqtt /path/to/config.yaml
+./wingbits-to-mqtt -config /path/to/config.yaml
+
+# Show version information
+./wingbits-to-mqtt -version
+```
+
+## Building
+
+### Local Build
+
+```bash
+go build -o wingbits-to-mqtt
+```
+
+### Cross-Compilation
+
+```bash
+# For Linux ARM
+GOOS=linux GOARCH=arm GOARM=6 go build -o wingbits-to-mqtt-linux-arm
+
+# For Windows
+GOOS=windows GOARCH=amd64 go build -o wingbits-to-mqtt.exe
+```
+
+### Using GoReleaser
+
+This project uses [GoReleaser](https://goreleaser.com/) for building and releasing:
+
+```bash
+# Install GoReleaser
+go install github.com/goreleaser/goreleaser@latest
+
+# Build for all platforms
+goreleaser build --snapshot --rm-dist
+
+# Create a release
+goreleaser release --snapshot --rm-dist
 ```
 
 ## Home Assistant Integration

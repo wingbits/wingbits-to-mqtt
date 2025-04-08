@@ -1,70 +1,67 @@
-name: Build and Publish wingbits-to-mqtt
+name: Build and Release
 
 on:
   push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+    tags:
+      - "v*"
+  workflow_dispatch:
 
 jobs:
   build:
+    name: Build
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - os: linux
+            arch: amd64
+            goos: linux
+            goarch: amd64
+          - os: linux
+            arch: arm
+            goos: linux
+            goarch: arm
+          - os: linux
+            arch: arm64
+            goos: linux
+            goarch: arm64
 
     steps:
-      # Checkout the repository
-      - name: Checkout code
-        uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v3
 
-      # Set up Go environment
       - name: Set up Go
-        uses: actions/setup-go@v3
+        uses: actions/setup-go@v4
         with:
-          go-version: "1.20" # Specify the Go version you want to use
+          go-version: "1.21"
 
-      # Cache Go dependencies to speed up builds
-      - name: Cache Go modules
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.cache/go-build
-            ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-
-
-      # Install dependencies
-      - name: Install dependencies
-        run: go mod tidy
-
-      # Build the Go service
       - name: Build
+        env:
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
         run: |
-          GOOS=linux GOARCH=amd64 go build -o myservice main.go # Change as per your Go service structure
+          go build -v -o wingbits-to-mqtt-${{ matrix.os }}-${{ matrix.arch }} ./...
 
-      # Package the artifact (optional)
-      - name: Create release artifact
-        run: tar -czf myservice.tar.gz myservice # Adjust the file(s) to be included
-
-      # Upload the artifact to GitHub
-      - name: Upload Artifact
+      - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: myservice-artifact
-          path: myservice.tar.gz
+          name: wingbits-to-mqtt-${{ matrix.os }}-${{ matrix.arch }}
+          path: wingbits-to-mqtt-${{ matrix.os }}-${{ matrix.arch }}
 
-  publish:
-    runs-on: ubuntu-latest
+  release:
+    name: Release
     needs: build
-    steps:
-      # Checkout the repository
-      - name: Checkout code
-        uses: actions/checkout@v2
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
 
-      # Publish the artifact (example: upload to an external service or registry)
-      - name: Publish Artifact
-        run: |
-          # Example: Upload to a remote server or registry
-          echo "Publishing the artifact..." # Replace with actual publishing command
-          # e.g., using curl, scp, or any other tool to push the artifact to your registry.
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v3
+        with:
+          path: artifacts
+
+      - name: Create release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: artifacts/**/*
+          generate_release_notes: true
