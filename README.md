@@ -79,32 +79,27 @@ GOOS=windows GOARCH=amd64 go build -o wingbits-to-mqtt.exe
 
 You can install the latest release directly from GitHub Packages:
 
-### Linux
+### Linux 
+From https://github.com/wingbits/wingbits-to-mqtt/releases/latest
+
+Example:
 ```bash
 # Download the latest release
-curl -L -o wingbits-to-mqtt https://github.com/wingbits/wingbits-to-mqtt/releases/latest/download/wingbits-to-mqtt-linux-amd64
+#Arm (raspberry pi)
+curl -L -o wingbits-to-mqtt https://github.com/wingbits/wingbits-to-mqtt/releases/download/latest/wingbits-to-mqtt_Linux_arm.tar.gz
+
 
 # Make it executable
 chmod +x wingbits-to-mqtt
 
 # Move to a directory in your PATH (optional)
 sudo mv wingbits-to-mqtt /usr/local/bin/
+
+curl -L -o config.yaml https://github.com/wingbits/wingbits-to-mqtt/blob/main/config.yaml
 ```
+Edit the config.yaml to point at your wingbits stations and your homeassistant mqtt server.
 
-### macOS
-```bash
-# Download the latest release
-curl -L -o wingbits-to-mqtt https://github.com/wingbits/wingbits-to-mqtt/releases/latest/download/wingbits-to-mqtt-darwin-amd64
 
-# Make it executable
-chmod +x wingbits-to-mqtt
-
-# Move to a directory in your PATH (optional)
-sudo mv wingbits-to-mqtt /usr/local/bin/
-```
-
-### Windows
-Download the latest release from: https://github.com/wingbits/wingbits-to-mqtt/releases/latest/download/wingbits-to-mqtt-windows-amd64.exe
 
 ## Home Assistant Integration
 
