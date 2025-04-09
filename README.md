@@ -104,7 +104,7 @@ sudo mv wingbits-to-mqtt /usr/local/bin/
 ```
 
 ### Windows
-Download the latest release from: https://github.com/msundberg/wingbits-to-mqtt/releases/latest/download/wingbits-to-mqtt-windows-amd64.exe
+Download the latest release from: https://github.com/wingbits/wingbits-to-mqtt/releases/latest/download/wingbits-to-mqtt-windows-amd64.exe
 
 ## Home Assistant Integration
 
