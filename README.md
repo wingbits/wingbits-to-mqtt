@@ -75,20 +75,36 @@ GOOS=linux GOARCH=arm GOARM=6 go build -o wingbits-to-mqtt-linux-arm
 GOOS=windows GOARCH=amd64 go build -o wingbits-to-mqtt.exe
 ```
 
-### Using GoReleaser
+## Installation from GitHub Packages
 
-This project uses [GoReleaser](https://goreleaser.com/) for building and releasing:
+You can install the latest release directly from GitHub Packages:
 
+### Linux
 ```bash
-# Install GoReleaser
-go install github.com/goreleaser/goreleaser@latest
+# Download the latest release
+curl -L -o wingbits-to-mqtt https://github.com/wingbits/wingbits-to-mqtt/releases/latest/download/wingbits-to-mqtt-linux-amd64
 
-# Build for all platforms
-goreleaser build --snapshot --rm-dist
+# Make it executable
+chmod +x wingbits-to-mqtt
 
-# Create a release
-goreleaser release --snapshot --rm-dist
+# Move to a directory in your PATH (optional)
+sudo mv wingbits-to-mqtt /usr/local/bin/
 ```
+
+### macOS
+```bash
+# Download the latest release
+curl -L -o wingbits-to-mqtt https://github.com/wingbits/wingbits-to-mqtt/releases/latest/download/wingbits-to-mqtt-darwin-amd64
+
+# Make it executable
+chmod +x wingbits-to-mqtt
+
+# Move to a directory in your PATH (optional)
+sudo mv wingbits-to-mqtt /usr/local/bin/
+```
+
+### Windows
+Download the latest release from: https://github.com/msundberg/wingbits-to-mqtt/releases/latest/download/wingbits-to-mqtt-windows-amd64.exe
 
 ## Home Assistant Integration
 
