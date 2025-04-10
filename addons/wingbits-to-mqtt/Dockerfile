@@ -1,28 +1,44 @@
-ARG BUILD_FROM
-FROM $BUILD_FROM
+# Build stage
+FROM golang:1.24-alpine AS builder
 
-# Set shell
-SHELL ["/bin/bash", "-o", "pipefail", "-c"]
-
-# Install required packages
-RUN apk add --no-cache \
-    go=~1.21 \
-    git=~2.43 \
-    build-base=~0.5 \
-    && go version
+# Install build dependencies
+RUN apk add --no-cache git
 
 # Set working directory
 WORKDIR /app
 
-# Copy the application
+# Copy go mod and sum files
+COPY go.mod go.sum ./
+
+# Download dependencies
+RUN go mod download
+
+# Copy source code
 COPY . .
 
 # Build the application
-RUN go build -o wingbits-to-mqtt
+RUN CGO_ENABLED=0 GOOS=linux go build -o wingbits-to-mqtt
 
-# Copy the run script
-COPY run.sh /
-RUN chmod a+x /run.sh
+# Final stage
+FROM alpine:latest
 
-# Set the entrypoint
-ENTRYPOINT [ "/run.sh" ] 
+# Install runtime dependencies
+RUN apk add --no-cache ca-certificates tzdata
+
+# Create non-root user
+RUN adduser -D -g '' appuser
+
+# Set working directory
+WORKDIR /app
+
+# Copy the binary from builder
+COPY --from=builder /app/wingbits-to-mqtt .
+# Copy config files
+COPY config.yaml .
+COPY --from=builder /app/config ./config
+
+# Use non-root user
+USER appuser
+
+# Run the application
+CMD ["./wingbits-to-mqtt"]
