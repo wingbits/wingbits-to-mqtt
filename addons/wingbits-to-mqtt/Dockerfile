@@ -35,7 +35,6 @@ WORKDIR /app
 COPY --from=builder /app/wingbits-to-mqtt .
 # Copy config files
 COPY config.yaml .
-COPY --from=builder /app/config ./config
 
 # Use non-root user
 USER appuser
