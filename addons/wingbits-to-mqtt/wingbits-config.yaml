@@ -1,0 +1,11 @@
+prometheus:
+  sources: ${prometheus_sources}
+
+mqtt:
+  broker: "tcp://${mqtt_broker}:1883"
+  client_id: ${mqtt_client_id}
+  topic_base: ${mqtt_topic_base}
+  username: ${mqtt_username}
+  password: ${mqtt_password}
+
+fetch_interval_seconds: ${fetch_interval_seconds}

@@ -74,7 +74,7 @@ type MetricProcessor struct {
 func loadConfig(configPath string) (*Config, error) {
 
 	if configPath == "" {
-		configPath = "config.yaml"
+		configPath = "wingbits-config.yaml"
 	}
 
 	if _, err := os.Stat(configPath); os.IsNotExist(err) {
