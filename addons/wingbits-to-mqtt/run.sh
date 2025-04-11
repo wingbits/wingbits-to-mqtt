@@ -1,24 +1,87 @@
 #!/usr/bin/with-contenv bashio
 
-# Generate config.yaml from add-on options
+bashio::log.info "Generating configuration for wingbits-to-mqtt..."
+
+# Read config values into variables first for clarity and debugging
+declare mqtt_broker
+declare mqtt_client_id
+declare mqtt_topic_base
+declare mqtt_username
+declare mqtt_password
+declare fetch_interval
+
+# Use bashio::config to read values, providing default empty string for optional password
+mqtt_broker=$(bashio::config 'mqtt.broker')
+mqtt_client_id=$(bashio::config 'mqtt.client_id')
+mqtt_topic_base=$(bashio::config 'mqtt.topic_base')
+mqtt_username=$(bashio::config 'mqtt.username')
+mqtt_password=$(bashio::config 'mqtt.password' '') # Default to empty string if null/missing
+fetch_interval=$(bashio::config 'fetch_interval_seconds')
+
+# Log fetched values (adjust log level as needed, avoid logging passwords in production)
+bashio::log.debug "MQTT Broker: ${mqtt_broker}"
+bashio::log.debug "MQTT Client ID: ${mqtt_client_id}"
+bashio::log.debug "MQTT Topic Base: ${mqtt_topic_base}"
+bashio::log.debug "MQTT Username: ${mqtt_username}"
+# bashio::log.info "MQTT Password: [REDACTED]" # Avoid logging password directly
+bashio::log.debug "Fetch Interval Raw: ${fetch_interval}"
+
+# Validate fetch_interval - check if it's a positive integer
+if ! [[ "${fetch_interval}" =~ ^[0-9]+$ ]]; then
+    bashio::log.warning "Fetch interval ('${fetch_interval}') is not a valid number. Check add-on configuration. Using default 60."
+    fetch_interval=60
+else
+    bashio::log.debug "Fetch Interval Validated: ${fetch_interval}"
+fi
+
+# Generate config file
 cat > /app/wingbits-config.yaml << EOF
 prometheus:
   sources:
-$(for i in $(bashio::config 'prometheus_sources'); do
-  echo "    - url: \"$(bashio::config "prometheus_sources[${i}].url")\""
-  echo "      label: \"$(bashio::config "prometheus_sources[${i}].label")\""
-done)
+$(
+  # Check if prometheus_sources is defined and is a list
+  if bashio::config.is_list 'prometheus_sources'; then
+    # Use bashio's length filter to get the count
+    count=$(bashio::config 'prometheus_sources | length')
+    bashio::log.debug "Found ${count} Prometheus sources."
+    # Loop from 0 to count-1
+    for i in $(seq 0 $((count - 1))); do
+      # Fetch URL and Label for the current index
+      url=$(bashio::config "prometheus_sources[${i}].url")
+      label=$(bashio::config "prometheus_sources[${i}].label")
+      bashio::log.debug "Source ${i}: URL='${url}', Label='${label}'"
+
+      # Basic check if URL looks like a variable placeholder (like the error)
+      if [[ "${url}" == "\${"* ]]; then
+         bashio::log.warning "Prometheus source URL '${url}' at index ${i} looks like an unparsed variable. Check add-on configuration."
+      fi
+      # Output YAML list item, ensuring proper quoting
+      echo "    - url: \"${url}\""
+      echo "      label: \"${label}\""
+    done
+  else
+    bashio::log.warning "No Prometheus sources configured or 'prometheus_sources' is not a list. Check add-on configuration."
+    # Output nothing here, resulting in 'sources: null' or 'sources: []' depending on YAML parser
+  fi
+)
 
 mqtt:
-  broker: "$(bashio::config 'mqtt.broker')"
-  client_id: "$(bashio::config 'mqtt.client_id')"
-  topic_base: "$(bashio::config 'mqtt.topic_base')"
-  username: "$(bashio::config 'mqtt.username')"
-  password: "$(bashio::config 'mqtt.password')"
+  broker: "${mqtt_broker}"
+  client_id: "${mqtt_client_id}"
+  topic_base: "${mqtt_topic_base}"
+  username: "${mqtt_username}"
+  # Ensure password is included and quoted, even if empty
+  password: "${mqtt_password}"
 
-fetch_interval_seconds: $(bashio::config 'fetch_interval_seconds')
+# Output the validated integer value
+fetch_interval_seconds: ${fetch_interval}
 EOF
+
+bashio::log.info "Configuration generated at /app/wingbits-config.yaml"
+# Optional: Log the generated config for debugging (might expose password if not careful)
+# bashio::log.debug "Generated config:\n$(cat /app/wingbits-config.yaml)"
 
 # Start the application
 cd /app
-exec ./wingbits-to-mqtt 
+bashio::log.info "Starting wingbits-to-mqtt application..."
+exec ./wingbits-to-mqtt
