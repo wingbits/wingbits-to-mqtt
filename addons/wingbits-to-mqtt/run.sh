@@ -1,5 +1,11 @@
 #!/usr/bin/with-contenv bashio
 
+# Debug: Check if options.json exists and its contents
+echo "Checking /data/options.json..."
+ls -l /data/options.json || echo "options.json not found"
+echo "Contents of /data/options.json:"
+cat /data/options.json || echo "Could not read options.json"
+
 bashio::log.info "Generating configuration for wingbits-to-mqtt..."
 
 # Read config values into variables first for clarity and debugging
@@ -19,12 +25,12 @@ mqtt_password=$(bashio::config 'mqtt.password' '') # Default to empty string if 
 fetch_interval=$(bashio::config 'fetch_interval_seconds')
 
 # Log fetched values (adjust log level as needed, avoid logging passwords in production)
-bashio::log.debug "MQTT Broker: ${mqtt_broker}"
-bashio::log.debug "MQTT Client ID: ${mqtt_client_id}"
-bashio::log.debug "MQTT Topic Base: ${mqtt_topic_base}"
-bashio::log.debug "MQTT Username: ${mqtt_username}"
+bashio::log.info "MQTT Broker: ${mqtt_broker}"
+bashio::log.info "MQTT Client ID: ${mqtt_client_id}"
+bashio::log.info "MQTT Topic Base: ${mqtt_topic_base}"
+bashio::log.info "MQTT Username: ${mqtt_username}"
 # bashio::log.info "MQTT Password: [REDACTED]" # Avoid logging password directly
-bashio::log.debug "Fetch Interval Raw: ${fetch_interval}"
+bashio::log.info "Fetch Interval Raw: ${fetch_interval}"
 
 # Validate fetch_interval - check if it's a positive integer
 if ! [[ "${fetch_interval}" =~ ^[0-9]+$ ]]; then
@@ -84,4 +90,6 @@ bashio::log.info "Configuration generated at /app/wingbits-config.yaml"
 # Start the application
 cd /app
 bashio::log.info "Starting wingbits-to-mqtt application..."
-exec ./wingbits-to-mqtt
+
+# Use exec to replace the shell process with our application
+exec s6-setuidgid root ./wingbits-to-mqtt

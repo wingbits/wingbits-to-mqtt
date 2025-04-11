@@ -20,7 +20,7 @@ COPY . .
 RUN CGO_ENABLED=0 GOOS=linux go build -o wingbits-to-mqtt
 
 # Final stage
-FROM homeassistant/amd64-base:latest
+FROM homeassistant/amd64-base:3.16
 
 # Set working directory
 WORKDIR /app
@@ -34,10 +34,12 @@ COPY run.sh .
 RUN mkdir -p /etc/services.d/wingbits-to-mqtt
 
 # Create s6 service run script
-RUN echo '#!/usr/bin/with-contenv bashio\n\
-    cd /app\n\
-    exec /app/run.sh' > /etc/services.d/wingbits-to-mqtt/run && \
+RUN printf '#!/usr/bin/with-contenv bashio\ncd /app\nexec /app/run.sh\n' > /etc/services.d/wingbits-to-mqtt/run && \
     chmod +x /etc/services.d/wingbits-to-mqtt/run
+
+# Create s6 service finish script
+RUN printf '#!/usr/bin/with-contenv bashio\nkill -TERM 1\n' > /etc/services.d/wingbits-to-mqtt/finish && \
+    chmod +x /etc/services.d/wingbits-to-mqtt/finish
 
 # Make sure run.sh is executable
 RUN chmod +x /app/run.sh
