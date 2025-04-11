@@ -37,9 +37,5 @@ RUN mkdir -p /etc/services.d/wingbits-to-mqtt
 RUN printf '#!/usr/bin/with-contenv bashio\ncd /app\nexec /app/run.sh\n' > /etc/services.d/wingbits-to-mqtt/run && \
     chmod +x /etc/services.d/wingbits-to-mqtt/run
 
-# Create s6 service finish script
-RUN printf '#!/usr/bin/with-contenv bashio\nkill -TERM 1\n' > /etc/services.d/wingbits-to-mqtt/finish && \
-    chmod +x /etc/services.d/wingbits-to-mqtt/finish
-
 # Make sure run.sh is executable
 RUN chmod +x /app/run.sh
