@@ -88,8 +88,10 @@ bashio::log.info "Configuration generated at /app/wingbits-config.yaml"
 # bashio::log.debug "Generated config:\n$(cat /app/wingbits-config.yaml)"
 
 # Start the application
+# Start the application
+# Start the application
 cd /app
 bashio::log.info "Starting wingbits-to-mqtt application..."
 
 # Use exec to replace the shell process with our application
-exec s6-setuidgid root ./wingbits-to-mqtt
+exec ./wingbits-to-mqtt
