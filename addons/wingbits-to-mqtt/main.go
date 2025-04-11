@@ -28,18 +28,18 @@ var (
 type Config struct {
 	Prometheus struct {
 		Sources []struct {
-			URL   string `yaml:"url"`
-			Label string `yaml:"label"`
-		} `yaml:"sources"`
+			URL   string `yaml:"url" json:"url"`
+			Label string `yaml:"label" json:"label"`
+		} `yaml:"sources" json:"prometheus_sources"`
 	} `yaml:"prometheus"`
 	MQTT struct {
-		Broker    string `yaml:"broker"`
-		ClientID  string `yaml:"client_id"`
-		TopicBase string `yaml:"topic_base"`
-		Username  string `yaml:"username"`
-		Password  string `yaml:"password"`
+		Broker    string `yaml:"broker" json:"broker"`
+		ClientID  string `yaml:"client_id" json:"client_id"`
+		TopicBase string `yaml:"topic_base" json:"topic_base"`
+		Username  string `yaml:"username" json:"username"`
+		Password  string `yaml:"password" json:"password"`
 	} `yaml:"mqtt"`
-	FetchIntervalSeconds int `yaml:"fetch_interval_seconds"`
+	FetchIntervalSeconds int `yaml:"fetch_interval_seconds" json:"fetch_interval_seconds"`
 }
 
 type MetricInfo struct {
@@ -72,7 +72,32 @@ type MetricProcessor struct {
 }
 
 func loadConfig(configPath string) (*Config, error) {
+	// First try to read from Home Assistant options.json
+	optionsPath := "/data/options.json"
+	if _, err := os.Stat(optionsPath); err == nil {
+		data, err := os.ReadFile(optionsPath)
+		if err != nil {
+			return nil, fmt.Errorf("error reading options.json: %w", err)
+		}
 
+		var config Config
+		if err := json.Unmarshal(data, &config); err != nil {
+			return nil, fmt.Errorf("error parsing options.json: %w", err)
+		}
+
+		// Set default fetch interval if not specified
+		if config.FetchIntervalSeconds <= 0 {
+			config.FetchIntervalSeconds = 60
+		}
+
+		if err := validateConfig(&config); err != nil {
+			return nil, fmt.Errorf("invalid config: %w", err)
+		}
+
+		return &config, nil
+	}
+
+	// Fall back to YAML config if options.json doesn't exist
 	if configPath == "" {
 		configPath = "wingbits-config.yaml"
 	}
