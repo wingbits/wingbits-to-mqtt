@@ -1,7 +1,7 @@
 #!/usr/bin/with-contenv bashio
 
 # Generate config.yaml from add-on options
-cat > /app/config.yaml << EOF
+cat > /app/wingbits-config.yaml << EOF
 prometheus:
   sources:
 $(for i in $(bashio::config 'prometheus_sources'); do
