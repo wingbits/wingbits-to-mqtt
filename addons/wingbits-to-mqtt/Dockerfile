@@ -34,10 +34,10 @@ WORKDIR /app
 # Copy the binary from builder
 COPY --from=builder /app/wingbits-to-mqtt .
 # Copy config files
-COPY wingbits-config.yaml .
+COPY run.sh .
 
 # Use non-root user
 USER appuser
 
 # Run the application
-CMD ["/app/run.sh"]
+CMD ["./run.sh"]
