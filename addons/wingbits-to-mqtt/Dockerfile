@@ -30,12 +30,8 @@ COPY --from=builder /app/wingbits-to-mqtt .
 # Copy config files
 COPY run.sh .
 
-# Create s6 service directory
-RUN mkdir -p /etc/services.d/wingbits-to-mqtt
-
-# Create s6 service run script
-RUN printf '#!/usr/bin/with-contenv bashio\ncd /app\nexec /app/run.sh\n' > /etc/services.d/wingbits-to-mqtt/run && \
-    chmod +x /etc/services.d/wingbits-to-mqtt/run
-
 # Make sure run.sh is executable
 RUN chmod +x /app/run.sh
+
+# Run the application
+CMD ["/app/run.sh"]
