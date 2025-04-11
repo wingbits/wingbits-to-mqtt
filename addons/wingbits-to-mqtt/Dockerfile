@@ -20,13 +20,7 @@ COPY . .
 RUN CGO_ENABLED=0 GOOS=linux go build -o wingbits-to-mqtt
 
 # Final stage
-FROM alpine:latest
-
-# Install runtime dependencies
-RUN apk add --no-cache ca-certificates tzdata
-
-# Create non-root user
-RUN adduser -D -g '' appuser
+FROM homeassistant/amd64-base:latest
 
 # Set working directory
 WORKDIR /app
@@ -35,9 +29,7 @@ WORKDIR /app
 COPY --from=builder /app/wingbits-to-mqtt .
 # Copy config files
 COPY run.sh .
-
-# Use non-root user
-USER appuser
+RUN chmod +x run.sh
 
 # Run the application
-CMD ["./run.sh"]
+CMD ["/app/run.sh"]
