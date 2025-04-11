@@ -40,4 +40,4 @@ COPY wingbits-config.yaml .
 USER appuser
 
 # Run the application
-CMD ["./wingbits-to-mqtt"]
+CMD ["/app/run.sh"]
