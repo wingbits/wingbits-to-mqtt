@@ -30,8 +30,8 @@ type Config struct {
 		Sources []struct {
 			URL   string `yaml:"url" json:"url"`
 			Label string `yaml:"label" json:"label"`
-		} `yaml:"sources" json:"prometheus_sources"`
-	} `yaml:"prometheus"`
+		} `yaml:"sources"`
+	} `yaml:"prometheus" json:"prometheus_sources"`
 	MQTT struct {
 		Broker    string `yaml:"broker" json:"broker"`
 		ClientID  string `yaml:"client_id" json:"client_id"`

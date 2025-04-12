@@ -1,5 +1,5 @@
 name: "Wingbits to MQTT"
-version: "1.0.137"
+version: "1.0.138"
 slug: "wingbits-to-mqtt"
 description: "Forwards metrics from Wingbits clients to MQTT for Home Assistant integration"
 url: "https://github.com/wingbits/wingbits-to-mqtt"
