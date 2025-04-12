@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  wingbits-to-mqtt:
+    build: .
+    container_name: wingbits-to-mqtt
+    restart: unless-stopped
+    volumes:
+      - ./config.yaml:/app/config.yaml:ro
+    networks:
+      - homeassistant
+    environment:
+      - TZ=Europe/Stockholm  # Adjust this to your timezone
+
+networks:
+  homeassistant:
+    external: true 

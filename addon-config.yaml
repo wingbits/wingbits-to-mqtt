@@ -1,0 +1,35 @@
+name: "Wingbits to MQTT"
+version: "1.0.1"
+slug: "wingbits-to-mqtt"
+description: "Forwards metrics from Wingbits clients to MQTT for Home Assistant integration"
+url: "https://github.com/wingbits/wingbits-to-mqtt"
+arch:
+  - armhf
+  - armv7
+  - aarch64
+  - amd64
+  - i386
+startup: application
+boot: auto
+options:
+  prometheus_sources:
+    - url: ""
+      label: ""
+  mqtt:
+    broker: "core-mosquitto"
+    client_id: "wingbits-mqtt"
+    topic_base: "homeassistant/sensor/wingbits/"
+    username: ""
+    password: ""
+  fetch_interval_seconds: 60
+schema:
+  prometheus_sources:
+    - url: str
+      label: str
+  mqtt:
+    broker: str
+    client_id: str
+    topic_base: str
+    username: str
+    password: password
+  fetch_interval_seconds: int(1,)

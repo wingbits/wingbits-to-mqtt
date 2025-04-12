@@ -2,6 +2,64 @@
 
 This application fetches Metrics from one or more wingbits clients, and sends them to a mqtt server. Adopted for use with homeassistant.
 
+## Installation
+
+### Home Assistant Add-on (Recommended)
+
+1. Add the Wingbits Add-on repository to your Home Assistant instance:
+   - Go to **Settings** → **Add-ons** → **Add-on Store**
+   - Click the three dots menu in the top right
+   - Select **Repositories**
+   - Add the repository URL: `https://github.com/wingbits/home-assistant-addons`
+
+2. Install the "Wingbits to MQTT" add-on from the Add-on Store
+
+3. Configure the add-on:
+   - Set your Wingbits Prometheus sources (URLs and labels)
+   - Configure MQTT settings (defaults to using Home Assistant's built-in MQTT broker)
+   - Adjust the fetch interval if needed
+
+4. Start the add-on
+
+The add-on will automatically create MQTT entities in Home Assistant using the MQTT Discovery feature.
+
+### Docker Installation
+
+1. Clone this repository:
+```bash
+git clone https://github.com/wingbits/wingbits-to-mqtt.git
+cd wingbits-to-mqtt
+```
+
+2. Create and edit your `config.yaml` file with your settings.
+
+3. Make sure you have the Home Assistant network available:
+```bash
+docker network ls | grep homeassistant || docker network create homeassistant
+```
+
+4. Start the container:
+```bash
+docker-compose up -d
+```
+
+The container will automatically restart unless stopped manually.
+
+### Manual Installation
+
+Run the application with:
+
+```bash
+# Use default config.yaml
+./wingbits-to-mqtt
+
+# Or specify a custom config file
+./wingbits-to-mqtt -config /path/to/config.yaml
+
+# Show version information
+./wingbits-to-mqtt -version
+```
+
 ## Configuration
 
 The application is configured using a YAML file. By default, it looks for `config.yaml` in the current directory, but you can specify a different path as a command-line argument.
@@ -42,21 +100,6 @@ fetch_interval_seconds: 60
 #### Other Settings
 - `fetch_interval_seconds`: How often to fetch metrics (in seconds)
 
-## Usage
-
-Run the application with:
-
-```bash
-# Use default config.yaml
-./wingbits-to-mqtt
-
-# Or specify a custom config file
-./wingbits-to-mqtt -config /path/to/config.yaml
-
-# Show version information
-./wingbits-to-mqtt -version
-```
-
 ## Building
 
 ### Local Build
@@ -88,7 +131,6 @@ Example:
 #Arm (raspberry pi)
 curl -L -o wingbits-to-mqtt https://github.com/wingbits/wingbits-to-mqtt/releases/download/latest/wingbits-to-mqtt_Linux_arm.tar.gz
 
-
 # Make it executable
 chmod +x wingbits-to-mqtt
 
@@ -98,8 +140,6 @@ sudo mv wingbits-to-mqtt /usr/local/bin/
 curl -L -o config.yaml https://github.com/wingbits/wingbits-to-mqtt/blob/main/config.yaml
 ```
 Edit the config.yaml to point at your wingbits stations and your homeassistant mqtt server.
-
-
 
 ## Home Assistant Integration
 
