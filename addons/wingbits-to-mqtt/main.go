@@ -79,12 +79,13 @@ func loadConfig(configPath string) (*Config, error) {
 		if err != nil {
 			return nil, fmt.Errorf("error reading options.json: %w", err)
 		}
-
+		fmt.Println("options.json found")
+		fmt.Printf("options.json content: %s", string(data))
 		var config Config
 		if err := json.Unmarshal(data, &config); err != nil {
 			return nil, fmt.Errorf("error parsing options.json: %w", err)
 		}
-
+		fmt.Printf("options.json parsed: %+v", config)
 		// Set default fetch interval if not specified
 		if config.FetchIntervalSeconds <= 0 {
 			config.FetchIntervalSeconds = 60
