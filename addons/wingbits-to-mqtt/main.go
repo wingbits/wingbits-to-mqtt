@@ -15,7 +15,6 @@ import (
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
-	"gopkg.in/yaml.v3"
 )
 
 // Version information set during build
@@ -28,18 +27,22 @@ var (
 type Config struct {
 	Prometheus struct {
 		Sources []struct {
-			URL   string `yaml:"url" json:"url"`
-			Label string `yaml:"label" json:"label"`
-		} `yaml:"sources"`
-	} `yaml:"prometheus" json:"prometheus_sources"`
+			URL   string `json:"url"`
+			Label string `json:"label"`
+		} `json:"sources"`
+	} `json:"prometheus"`
 	MQTT struct {
-		Broker    string `yaml:"broker" json:"broker"`
-		ClientID  string `yaml:"client_id" json:"client_id"`
-		TopicBase string `yaml:"topic_base" json:"topic_base"`
-		Username  string `yaml:"username" json:"username"`
-		Password  string `yaml:"password" json:"password"`
-	} `yaml:"mqtt"`
-	FetchIntervalSeconds int `yaml:"fetch_interval_seconds" json:"fetch_interval_seconds"`
+		Broker    string `json:"broker"`
+		ClientID  string `json:"client_id"`
+		TopicBase string `json:"topic_base"`
+		Username  string `json:"username"`
+		Password  string `json:"password"`
+	} `json:"mqtt"`
+	FetchIntervalSeconds int `json:"fetch_interval_seconds"`
+	PrometheusSources    []struct {
+		URL   string `json:"url"`
+		Label string `json:"label"`
+	} `json:"prometheus_sources"`
 }
 
 type MetricInfo struct {
@@ -97,39 +100,16 @@ func loadConfig(configPath string) (*Config, error) {
 
 		return &config, nil
 	}
-
-	// Fall back to YAML config if options.json doesn't exist
-	if configPath == "" {
-		configPath = "wingbits-config.yaml"
-	}
-
-	if _, err := os.Stat(configPath); os.IsNotExist(err) {
-		return nil, fmt.Errorf("config file not found: %s", configPath)
-	}
-
-	data, err := os.ReadFile(configPath)
-	if err != nil {
-		return nil, fmt.Errorf("error reading config file: %w", err)
-	}
-	var config Config
-	if err := yaml.Unmarshal(data, &config); err != nil {
-		return nil, fmt.Errorf("error parsing config file: %w", err)
-	}
-
-	if err := validateConfig(&config); err != nil {
-		return nil, fmt.Errorf("invalid config: %w", err)
-	}
-
-	return &config, nil
+	return nil, fmt.Errorf("options.json not found")
 }
 
 func validateConfig(config *Config) error {
 
-	if len(config.Prometheus.Sources) == 0 {
+	if len(config.PrometheusSources) == 0 {
 		return fmt.Errorf("no prometheus sources configured")
 	}
 
-	for i, source := range config.Prometheus.Sources {
+	for i, source := range config.PrometheusSources {
 		if source.URL == "" {
 			return fmt.Errorf("prometheus source %d: url is required", i)
 		}
@@ -194,7 +174,7 @@ func (mp *MetricProcessor) Run() {
 }
 
 func (mp *MetricProcessor) processAllSources() {
-	for _, source := range mp.config.Prometheus.Sources {
+	for _, source := range mp.config.PrometheusSources {
 		mp.processMetrics(source.URL, source.Label)
 	}
 }
